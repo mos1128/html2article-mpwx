@@ -193,3 +193,15 @@ html2article-mpwx/
 - HTML 中的 `text-indent` 样式和段落开头的空白字符会在注入时自动清除
 - 注入位置为编辑器正文区域的最前面（`insertAdjacentHTML('afterbegin')`）
 - 已上传图片的 CDN 链接可通过图片列表中的复制按钮一键复制到剪贴板
+
+## 打赏
+
+如果这个工具对你有帮助，欢迎请作者喝杯咖啡 ☕
+
+<div align="center">
+  <img src="assets/appreciation_qrcode.png" width="200" alt="打赏二维码" />
+</div>
+
+## License
+
+[MIT](LICENSE)
