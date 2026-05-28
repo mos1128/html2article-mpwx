@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 360px;
+      font-family: "Google Sans", "Segoe UI", Roboto, -apple-system, sans-serif;
+      font-size: 13px;
+      color: #202124;
+      background: #f8f9fa;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 14px 16px;
+      background: #1a73e8;
+      color: #fff;
+    }
+
+    .header-title {
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    .header-subtitle {
+      font-size: 11px;
+      opacity: 0.85;
+    }
+
+    /* ── Content ── */
+    .content {
+      padding: 12px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(60, 64, 67, 0.12), 0 1px 2px rgba(60, 64, 67, 0.08);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .card-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #5f6368;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .card-label svg {
+      flex-shrink: 0;
+    }
+
+    .hint-text {
+      font-size: 11px;
+      color: #9aa0a6;
+      margin-top: 6px;
+    }
+
+    /* ── Textarea ── */
+    textarea {
+      width: 100%;
+      height: 200px;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 12px;
+      padding: 12px;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      resize: vertical;
+      line-height: 1.5;
+      color: #202124;
+      background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    textarea:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+      outline: none;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: #1a73e8;
+      color: #fff;
+      box-shadow: 0 1px 3px rgba(26, 115, 232, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: #1557b0;
+      box-shadow: 0 2px 6px rgba(26, 115, 232, 0.35);
+    }
+
+    .btn-primary:disabled {
+      background: #e8eaed;
+      color: #9aa0a6;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .btn-outlined {
+      background: transparent;
+      border: 1px solid #dadce0;
+      color: #1a73e8;
+    }
+
+    .btn-outlined:hover {
+      background: rgba(26, 115, 232, 0.04);
+      border-color: #1a73e8;
+    }
+
+    .btn-text {
+      background: transparent;
+      border: none;
+      color: #5f6368;
+      padding: 9px 12px;
+    }
+
+    .btn-text:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    .action-area {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .upload-hint {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #d93025;
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+
+    .upload-hint svg {
+      flex-shrink: 0;
+    }
+
+    /* ── Progress ── */
+    #progress {
+      display: none;
+      margin-bottom: 12px;
+      padding: 12px 16px;
+      background: #e8f0fe;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #1a73e8;
+    }
+
+    #progressText {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(26, 115, 232, 0.2);
+      border-top-color: #1a73e8;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── Image Card ── */
+    #imageActionArea {
+      animation: fadeSlideUp 0.3s ease;
+    }
+
+    .image-status-text {
+      font-size: 12px;
+      color: #5f6368;
+      margin-bottom: 8px;
+    }
+
+    /* ── Image List ── */
+    .image-list {
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .image-list:empty {
+      display: none;
+    }
+
+    .image-list-item {
+      display: flex;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid #f1f3f4;
+      gap: 8px;
+      animation: fadeSlideUp 0.25s ease;
+    }
+
+    .image-list-item:last-child {
+      border-bottom: none;
+    }
+
+    .image-name {
+      flex: 1;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .image-name.matched {
+      color: #1e8e3e;
+    }
+
+    .image-name.missing {
+      color: #d93025;
+    }
+
+    .image-name.failed {
+      color: #9aa0a6;
+      text-decoration: line-through;
+    }
+
+    .copy-btn {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      color: #5f6368;
+      transition: all 0.2s ease;
+      padding: 0;
+    }
+
+    .copy-btn:hover {
+      background: rgba(26, 115, 232, 0.08);
+      color: #1a73e8;
+    }
+
+    .copy-btn.copied {
+      color: #1e8e3e;
+    }
+
+    .copy-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .status-badge {
+      flex-shrink: 0;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .badge-missing {
+      background: #fce8e6;
+      color: #d93025;
+    }
+
+    .badge-failed {
+      background: #f1f3f4;
+      color: #9aa0a6;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      display: none;
+      z-index: 100;
+      animation: slideDown 0.3s ease;
+    }
+
+    #toast.success {
+      display: block;
+      background: #1e8e3e;
+      color: #fff;
+    }
+
+    #toast.error {
+      display: block;
+      background: #d93025;
+      color: #fff;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="toast"></div>
+
+  <header class="header">
+    <span class="header-title">HTML2Article</span>
+    <span class="header-subtitle">微信图文注入工具</span>
+  </header>
+
+  <main class="content">
+    <section class="card">
+      <label class="card-label">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6" />
+          <polyline points="8 6 2 12 8 18" />
+        </svg>
+        HTML 代码
+      </label>
+      <textarea id="htmlInput" placeholder="粘贴 HTML 代码..."></textarea>
+      <div class="hint-text">Ctrl + Enter 快速注入</div>
+      <div id="actionArea" class="action-area">
+        <div id="uploadHint" class="upload-hint" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          本地图片需要先上传才可以注入到正文哦~
+        </div>
+        <button id="primaryBtn" class="btn btn-primary btn-full" style="display:none">上传图片</button>
+        <button id="secondaryBtn" class="btn btn-primary btn-full" disabled>注入到正文</button>
+      </div>
+    </section>
+
+    <div id="progress">
+      <span id="progressText"></span>
+    </div>
+
+    <section id="imageActionArea" class="card" style="display:none">
+      <div class="card-label">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <polyline points="21 15 16 10 5 21" />
+        </svg>
+        图片处理
+      </div>
+      <div id="imageStatus" class="image-status-text"></div>
+      <div id="imageList" class="image-list"></div>
+    </section>
+  </main>
+
+  <script src="css-inline.js"></script>
+  <script src="image-handler.js"></script>
+  <script src="popup.js"></script>
+</body>
+
+</html>
