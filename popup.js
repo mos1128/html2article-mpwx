@@ -6,6 +6,8 @@ const CHECK_ICON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="no
 
 const FOLDER_ICON_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
 
+const MD_IMAGE_ICON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+
 // ── Main Logic ──
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -61,13 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
         hideProgress();
     }
 
-    function copyToClipboard(text, buttonEl) {
+    function copyToClipboard(text, buttonEl, restoreIcon = COPY_ICON_SVG) {
         navigator.clipboard.writeText(text).then(() => {
             buttonEl.innerHTML = CHECK_ICON_SVG;
             buttonEl.classList.add('copied');
             showToast('已复制链接');
             setTimeout(() => {
-                buttonEl.innerHTML = COPY_ICON_SVG;
+                buttonEl.innerHTML = restoreIcon;
                 buttonEl.classList.remove('copied');
             }, 2000);
         }).catch(() => {
@@ -312,6 +314,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 copyBtn.innerHTML = COPY_ICON_SVG;
                 copyBtn.addEventListener('click', () => copyToClipboard(item.cdnUrl, copyBtn));
                 row.appendChild(copyBtn);
+
+                const mdBtn = document.createElement('button');
+                mdBtn.className = 'copy-btn';
+                mdBtn.title = '复制 Markdown 图片';
+                mdBtn.innerHTML = MD_IMAGE_ICON_SVG;
+                mdBtn.addEventListener('click', () => {
+                    const mdImage = `![${item.label}](${item.cdnUrl})`;
+                    copyToClipboard(mdImage, mdBtn, MD_IMAGE_ICON_SVG);
+                });
+                row.appendChild(mdBtn);
             } else if (item.status === 'missing') {
                 const badge = document.createElement('span');
                 badge.className = 'status-badge badge-missing';
