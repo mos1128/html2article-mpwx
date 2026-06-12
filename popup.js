@@ -13,6 +13,7 @@ const MD_IMAGE_ICON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill=
 document.addEventListener('DOMContentLoaded', () => {
     const htmlInput = document.getElementById('htmlInput');
     const primaryBtn = document.getElementById('primaryBtn');
+    const extractBtn = document.getElementById('extractBtn');
     const secondaryBtn = document.getElementById('secondaryBtn');
     const uploadHint = document.getElementById('uploadHint');
     const toastEl = document.getElementById('toast');
@@ -351,6 +352,10 @@ document.addEventListener('DOMContentLoaded', () => {
         await handleUploadLocalImages();
     });
 
+    extractBtn.addEventListener('click', async () => {
+        await handleExtractCurrentHtml();
+    });
+
     secondaryBtn.addEventListener('click', async () => {
         const text = secondaryBtn.textContent;
         if (text.includes('清空内容')) {
@@ -404,6 +409,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         imageActionArea.style.display = 'none';
         await injectFinal();
+    }
+
+    async function handleExtractCurrentHtml() {
+        await ensureTabId();
+        if (!tabId) return;
+
+        chrome.scripting.executeScript({
+            target: { tabId },
+            world: 'MAIN',
+            func: extractHTMLFromWeChat
+        }, (results) => {
+            if (chrome.runtime.lastError) {
+                showToast('提取失败：' + chrome.runtime.lastError.message, 'error');
+                return;
+            }
+
+            const html = results && results[0] ? results[0].result : null;
+            if (typeof html !== 'string') {
+                showToast('未找到正文编辑器！', 'error');
+                return;
+            }
+
+            htmlInput.value = html;
+            htmlInput.dispatchEvent(new Event('input', { bubbles: true }));
+            showToast('已提取当前正文 HTML');
+        });
     }
 
     function openFolderPicker() {
@@ -633,4 +664,43 @@ function injectHTMLToWeChat(code) {
     editor.insertAdjacentHTML('afterbegin', wrapper.innerHTML);
     editor.dispatchEvent(new Event('input', { bubbles: true }));
     return true;
+}
+
+function extractHTMLFromWeChat() {
+    const editables = Array.from(document.querySelectorAll('[contenteditable="true"]'));
+
+    const isTitle = (el) => {
+        const id = el.id.toLowerCase();
+        const cls = (typeof el.className === 'string') ? el.className.toLowerCase() : '';
+        const ph = (el.getAttribute('placeholder') || el.getAttribute('data-placeholder') || '').toLowerCase();
+        return id.includes('title') || cls.includes('title') || ph.includes('标题');
+    };
+
+    let editor = editables.find(el => {
+        if (isTitle(el)) return false;
+        const ph = (el.getAttribute('placeholder') || el.getAttribute('data-placeholder') || '');
+        return ph.includes('正文');
+    });
+
+    if (!editor) {
+        editor = editables.find(el => {
+            if (isTitle(el)) return false;
+            const id = el.id.toLowerCase();
+            const cls = (typeof el.className === 'string') ? el.className.toLowerCase() : '';
+            return id.includes('body') || id.includes('content')
+                || cls.includes('edui-body') || cls.includes('body-container')
+                || cls.includes('editor_content');
+        });
+    }
+
+    if (!editor) {
+        const candidates = editables.filter(el => !isTitle(el) && el.clientHeight > 0);
+        if (candidates.length > 0) {
+            editor = candidates.reduce((max, el) => el.clientHeight > max.clientHeight ? el : max);
+        }
+    }
+
+    if (!editor || editor.clientHeight === 0) return null;
+
+    return editor.innerHTML;
 }
